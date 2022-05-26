@@ -1,0 +1,20 @@
+node {
+    
+    stage('checkout') { 
+        // Get some code from a GitHub repository
+        git credentialsId: 'git_credentials', url: 'https://github.com/FatiZarouali/web-app-Docker.git'
+    }
+    
+
+    stage('Build docker image') {
+        sh 'docker build -t zarouali/my-app:2.0.0 .'
+    }
+    stage('push docker image') {
+        withCredentials([usernameColonPassword(credentialsId: 'docker_hub_pass', variable: 'docker_hub_pass')]){
+            sh "docker login -u zarouali -p Fatimazahrae1 "
+        }
+        sh 'docker push zarouali/my-app:2.0.0'
+    }
+    stage('Run Container on Dev Server'){ 
+        sh 'docker run -p 8880:5000 -d --name my-app-python9 zarouali/my-app:2.0.0' }
+}
